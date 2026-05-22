@@ -276,10 +276,16 @@ namespace SuzumeInputViewer
             int.TryParse(ini.Get("Input_GamePad", "TT", "30"), out GamePadTT);
 
             // 数値設定
-            float.TryParse(ini.Get("Settings", "ResponseTime", "0.1"), out responseTime);
-            float.TryParse(ini.Get("Settings", "IdleResetTime", "2.0"), out idleResetTime);
+            float.TryParse(ini.Get("Settings", "ResponseTime", "0.1"),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out responseTime);
+            float.TryParse(ini.Get("Settings", "IdleResetTime", "2.0"),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out idleResetTime);
             if (idleResetTime < 0f || idleResetTime > 3.0f) idleResetTime = 0f;
-            float.TryParse(ini.Get("Settings", "UpdateTime", "10"), out updateTime);
+            float.TryParse(ini.Get("Settings", "UpdateTime", "10"),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out updateTime);
             if (updateTime < 1.0f) updateTime = 1.0f;
 
             int.TryParse(ini.Get("Settings", "JumpPointSize", "15"), out JumpPointSize);
@@ -424,7 +430,9 @@ namespace SuzumeInputViewer
 
                     // 再起動が必要な設定の変更を検知
                     float newUpdateTime;
-                    float.TryParse(ini.Get("Settings", "UpdateTime", "10"), out newUpdateTime);
+                    float.TryParse(ini.Get("Settings", "UpdateTime", "10"),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out newUpdateTime);
                     if (newUpdateTime < 1.0f) newUpdateTime = 1.0f;
 
                     int newDeviceType;
@@ -477,9 +485,13 @@ namespace SuzumeInputViewer
                     int.TryParse(ini.Get("Input_GamePad", "TT",      "30"), out GamePadTT);
 
                     // 数値設定（UpdateTime・DeviceTypeは除外）
-                    float.TryParse(ini.Get("Settings", "ResponseTime", "0.1"), out responseTime);
+                    float.TryParse(ini.Get("Settings", "ResponseTime", "0.1"),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out responseTime);
                     float newIdleReset;
-                    if (float.TryParse(ini.Get("Settings", "IdleResetTime", "2.0"), out newIdleReset))
+                    if (float.TryParse(ini.Get("Settings", "IdleResetTime", "2.0"),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture, out newIdleReset))
                         idleResetTime = (newIdleReset < 0f || newIdleReset > 3.0f) ? 0f : newIdleReset;
 
                     int newTrailMax;
@@ -1596,10 +1608,17 @@ namespace SuzumeInputViewer
                         g.DrawString($"Device Error", Font, Brushes.Red, 10, 85);
                     }
 
+                    // 2026/05/23 REP arrow keysに対応のため、表記を単純化（文字がはみ出ちゃうから）
+                    /*
                     g.DrawString($"{keyUp}", Font, Brushes.White, 157, 56);
                     g.DrawString($"{keyLeft}", Font, Brushes.White, 58, 155);
                     g.DrawString($"{keyRight}", Font, Brushes.White, 255, 155);
                     g.DrawString($"{keyDown}", Font, Brushes.White, 157, 254);
+                    */
+                    g.DrawString($"⯅", Font, Brushes.White, 155, 58);
+                    g.DrawString($"⯇", Font, Brushes.White, 58, 155);
+                    g.DrawString($"⯈", Font, Brushes.White, 253, 155);
+                    g.DrawString($"⯆", Font, Brushes.White, 155, 253);
 
                     g.DrawString($"ScreenShot", Font, Brushes.White, 10, 235);
 

@@ -21,6 +21,9 @@ namespace SuzumeInputViewer
                     return;
                 }
 
+                // TODO: 地域設定変更 - テスト用。確認後に削除すること！
+                //System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("it-IT");
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new MainForm());

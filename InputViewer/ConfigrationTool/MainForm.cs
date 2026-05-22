@@ -332,7 +332,7 @@ namespace ConfigrationTool
                 return;
             }
 
-            string updateTimeVal = GetControlValue(_controls["Settings\0UpdateTime"]);
+            string updateTimeVal = NormalizeDecimal(GetControlValue(_controls["Settings\0UpdateTime"]));
             float updateTimeF;
             if (_updateTimeChanged && float.TryParse(updateTimeVal, NumberStyles.Float, CultureInfo.InvariantCulture, out updateTimeF) && updateTimeF < 12.5f)
             {
@@ -400,9 +400,18 @@ namespace ConfigrationTool
             {
                 string[] parts = kv.Key.Split('\0');
                 string section = parts[0], key = parts[1];
-                _ini.Set(section, key, GetControlValue(kv.Value));
+                string val = GetControlValue(kv.Value);
+                if (IsFloatField(section, key))
+                    val = NormalizeDecimal(val);
+                _ini.Set(section, key, val);
             }
         }
+
+        private static string NormalizeDecimal(string val) => val.Replace(',', '.');
+
+        private static bool IsFloatField(string section, string key) =>
+            (section == "Settings" && (key == "UpdateTime" || key == "ResponseTime" || key == "IdleResetTime")) ||
+            (section == "Overlay" && (key == "OverlayScale" || key == "OverlayTrailDuration" || key == "OverlayTrailFadeTime"));
 
         private static string GetControlValue(Control ctrl)
         {
@@ -475,7 +484,7 @@ namespace ConfigrationTool
             if (section == "Settings" && key == "UpdateTime")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 1.0f)
                     ? null : "1.0 以上の値を指定してください";
             }
@@ -483,7 +492,7 @@ namespace ConfigrationTool
             if (section == "Settings" && key == "ResponseTime")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 0.01f && f <= 1.00f)
                     ? null : "0.01 ～ 1.00 の値を指定してください";
             }
@@ -491,7 +500,7 @@ namespace ConfigrationTool
             if (section == "Settings" && key == "IdleResetTime")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 0f && f <= 3.0f)
                     ? null : "0.0 ～ 3.0 の値を指定してください";
             }
@@ -514,7 +523,7 @@ namespace ConfigrationTool
             if (section == "Overlay" && key == "OverlayScale")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 0.25f && f <= 1.00f)
                     ? null : "0.25 ～ 1.00 の値を指定してください";
             }
@@ -522,7 +531,7 @@ namespace ConfigrationTool
             if (section == "Overlay" && key == "OverlayTrailDuration")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 0.1f)
                     ? null : "0.1 以上の値を指定してください";
             }
@@ -530,7 +539,7 @@ namespace ConfigrationTool
             if (section == "Overlay" && key == "OverlayTrailFadeTime")
             {
                 float f;
-                return (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out f)
+                return (float.TryParse(NormalizeDecimal(val), NumberStyles.Float, CultureInfo.InvariantCulture, out f)
                         && f >= 0f)
                     ? null : "0.0 以上の値を指定してください";
             }
@@ -597,6 +606,21 @@ namespace ConfigrationTool
                     DialogResult = DialogResult.OK;
                     Close();
                 };
+            }
+
+            // 矢印キーは WinForms がナビゲーションキーとして KeyDown より前に消費するため
+            // ProcessCmdKey でキャプチャする
+            protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+            {
+                Keys key = keyData & Keys.KeyCode;
+                if (key == Keys.Up || key == Keys.Down || key == Keys.Left || key == Keys.Right)
+                {
+                    CapturedKey = key.ToString();
+                    DialogResult = DialogResult.OK;
+                    Close();
+                    return true;
+                }
+                return base.ProcessCmdKey(ref msg, keyData);
             }
         }
 
